@@ -15,7 +15,8 @@
     "db:pull": "drizzle-kit pull",
     "verificar": "tsx scripts/verificar.ts",
     "verificar:api": "tsx scripts/verificar-api.ts",
-    "badges": "tsx scripts/gen_badges.ts"
+    "badges": "tsx scripts/gen_badges.ts",
+    "screenshots": "bash scripts/screenshots.sh"
   },
   "dependencies": {
     "@astrojs/node": "^11.1.8",

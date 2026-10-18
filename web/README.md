@@ -286,6 +286,44 @@ Error (4xx/5xx):
 | **V4** | `/partidos/:id` | Cabecera, **3 árbitros en orden P, A1, A2** (RP-05), marcador (o "Pendiente") y lista de goles con autor, equipo y minuto. **404** si `id` no existe o no es numérico. |
 | **V5** | `/equipos/:id` *(DA1)* | 15 jugadores ordenados por dorsal. 404 si no existe. |
 
+### Capturas de pantalla
+
+Generadas con [Brave Browser](https://brave.com/) headless (`brave-browser --headless
+--screenshot=…`); 1280×720 px. Regenerables con `npm run screenshots` (ver
+"Reproducir capturas" más abajo).
+
+**V1 — Posiciones** (`/`)
+
+![Tabla de posiciones](.docs/screens/v1-posiciones.png)
+
+**V2 — Calendario** (`/calendario`)
+
+![Calendario completo](.docs/screens/v2-calendario.png)
+
+**V2 con filtro** `?jornada=3&estado=jugado` → 6 partidos.
+
+![Calendario filtrado por jornada 3](.docs/screens/v2-calendario-j3.png)
+
+**V3 — Goleadores** (`/goleadores`)
+
+![Tabla de goleadores](.docs/screens/v3-goleadores.png)
+
+**V4 — Partido jugado** (`/partidos/1` · 0–0 con 3 árbitros en orden P, A1, A2)
+
+![Detalle de partido jugado](.docs/screens/v4-partido-jugado.png)
+
+**V4 — Partido pendiente** (`/partidos/49` · marcador = "Pendiente", sin sección de goles)
+
+![Detalle de partido pendiente](.docs/screens/v4-partido-pendiente.png)
+
+**V4 — `id` inexistente** (`/partidos/9999` → 404)
+
+![Error 404 del partido](.docs/screens/v4-partido-404.png)
+
+**V5 — Plantilla de equipo** *(DA1, opcional)* — Aurora FC, 15 dorsales.
+
+![Plantilla de equipo](.docs/screens/v5-equipo.png)
+
 Reglas globales (RP-01..RP-07):
 
 - **RP-01** Marcador "local 2 – 1 visitante" o "Pendiente". Un partido sin
