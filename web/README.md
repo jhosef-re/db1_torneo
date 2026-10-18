@@ -5,6 +5,7 @@
 > como **vistas HTML** (Astro SSR + Tailwind v4) y como **API REST JSON**
 > (`snake_case`, `GET` solamente, UTF-8).
 
+[![CI · Campeonato web](https://github.com/jhosef-re/db1_torneo/actions/workflows/ci.yml/badge.svg)](https://github.com/jhosef-re/db1_torneo/actions/workflows/ci.yml)
 ![checks 87/87](.docs/badges/checks.svg)
 ![astro check 0E/0W/0H](.docs/badges/astro-check.svg)
 ![build OK](.docs/badges/build.svg)
