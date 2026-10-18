@@ -1,0 +1,36 @@
+# build output
+dist/
+
+# generated types
+.astro/
+
+# dependencias
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# variables de entorno (NUNCA se versionan)
+.env
+.env.production
+.env.local
+.env.*.local
+
+# salida cruda de drizzle-kit pull (A3.3). Se copia "a mano" a src/db/schema.ts.
+src/db/pulled/
+
+# Los SVG de estado se versionan: son la fuente de verdad visible de
+# los badges del README. Se regeneran con `npm run badges` cuando se
+# cierra una fase; cada cambio debe commitearse junto al código.
+# Para ignorar localmente los cambios automáticos, usa:
+#   git update-index --assume-unchanged web/.docs/badges/
+# (no recomendado en CI).
+
+# macOS-specific files
+.DS_Store
+
+# jetbrains setting folder
+.idea/

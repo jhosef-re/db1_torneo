@@ -1,0 +1,58 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'Liga Universitaria del Valle · Campeonato 2026' } = Astro.props;
+
+const nav: { href: string; label: string }[] = [
+  { href: '/', label: 'Posiciones' },
+  { href: '/calendario', label: 'Calendario' },
+  { href: '/goleadores', label: 'Goleadores' },
+  { href: '/equipos/1', label: 'Equipos' },
+];
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-900">
+    <header class="border-b border-slate-200 bg-white">
+      <div class="mx-auto max-w-6xl px-4 py-4">
+        <a href="/" class="text-lg font-semibold tracking-tight text-slate-900">
+          Campeonato 2026
+        </a>
+        <p class="text-sm text-slate-500">Liga Universitaria del Valle · solo lectura</p>
+      </div>
+      <nav class="mx-auto max-w-6xl px-4 pb-3">
+        <ul class="flex gap-2 overflow-x-auto text-sm">
+          {nav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="inline-block rounded-md px-3 py-1.5 text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </header>
+    <main class="mx-auto max-w-6xl px-4 py-6">
+      <slot />
+    </main>
+    <footer class="mx-auto max-w-6xl px-4 py-6 text-xs text-slate-500">
+      App de consulta · Base de datos <code class="rounded bg-slate-100 px-1">campeonato_futbol</code>
+    </footer>
+  </body>
+</html>

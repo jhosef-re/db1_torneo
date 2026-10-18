@@ -1,0 +1,35 @@
+{
+  "name": "web",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "astro": "astro",
+    "db:pull": "drizzle-kit pull",
+    "verificar": "tsx scripts/verificar.ts",
+    "verificar:api": "tsx scripts/verificar-api.ts",
+    "badges": "tsx scripts/gen_badges.ts"
+  },
+  "dependencies": {
+    "@astrojs/node": "^11.1.8",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.4.0",
+    "dotenv": "^18.0.8",
+    "drizzle-orm": "^0.45.4",
+    "mysql2": "^3.24.6",
+    "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "drizzle-kit": "^0.31.11",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3"
+  }
+}

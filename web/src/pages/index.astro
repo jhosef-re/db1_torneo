@@ -1,0 +1,48 @@
+---
+import Base from '../layouts/Base.astro';
+import { posiciones } from '../lib/queries/posiciones';
+
+const datos = await posiciones();
+---
+
+<Base title="Posiciones · Campeonato 2026">
+  <h1 class="mb-1 text-2xl font-semibold">Tabla de posiciones</h1>
+  <p class="mb-3 text-sm text-slate-500">12 equipos · {datos[0]?.pj ?? 8} PJ c/u al cierre de la jornada 8</p>
+
+  <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-100 text-left text-slate-700">
+        <tr>
+          <th class="px-3 py-2 w-12">#</th>
+          <th class="px-3 py-2">Equipo</th>
+          <th class="px-3 py-2 text-right">PJ</th>
+          <th class="px-3 py-2 text-right">PG</th>
+          <th class="px-3 py-2 text-right">PE</th>
+          <th class="px-3 py-2 text-right">PP</th>
+          <th class="px-3 py-2 text-right">GF</th>
+          <th class="px-3 py-2 text-right">GC</th>
+          <th class="px-3 py-2 text-right">DG</th>
+          <th class="px-3 py-2 text-right">Pts</th>
+        </tr>
+      </thead>
+      <tbody>
+        {datos.map((p, i) => (
+          <tr class="border-t border-slate-100 even:bg-slate-50">
+            <td class="px-3 py-2 text-slate-500">{i + 1}</td>
+            <td class="px-3 py-2">
+              <a href={`/equipos/${p.equipo_id}`} class="text-sky-700 hover:underline">{p.equipo}</a>
+            </td>
+            <td class="px-3 py-2 text-right font-mono">{p.pj}</td>
+            <td class="px-3 py-2 text-right font-mono">{p.pg}</td>
+            <td class="px-3 py-2 text-right font-mono">{p.pe}</td>
+            <td class="px-3 py-2 text-right font-mono">{p.pp}</td>
+            <td class="px-3 py-2 text-right font-mono">{p.gf}</td>
+            <td class="px-3 py-2 text-right font-mono">{p.gc}</td>
+            <td class="px-3 py-2 text-right font-mono">{p.dg}</td>
+            <td class="px-3 py-2 text-right font-mono font-semibold">{p.puntos}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</Base>

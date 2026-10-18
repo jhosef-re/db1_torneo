@@ -1,0 +1,66 @@
+---
+import Base from '../../layouts/Base.astro';
+import { equipoDetalle } from '../../lib/queries/equipo';
+import { fechaCorta } from '../../lib/formato';
+
+const { id } = Astro.params;
+const numeric = id !== undefined && /^[1-9][0-9]*$/.test(id) ? Number(id) : null;
+
+let equipo = null as Awaited<ReturnType<typeof equipoDetalle>>;
+let notFound = false;
+
+if (numeric === null) {
+  notFound = true;
+} else {
+  equipo = await equipoDetalle(numeric);
+  if (equipo === null) notFound = true;
+}
+
+if (notFound) Astro.response.status = 404;
+---
+
+{
+  notFound && (
+    <Base title="Equipo no encontrado · Campeonato 2026">
+      <h1 class="text-2xl font-semibold">Equipo no encontrado</h1>
+      <p class="mt-2 text-slate-600">El id solicitado no existe o no es válido.</p>
+      <p class="mt-3"><a href="/" class="text-sky-700 hover:underline">Volver a posiciones</a></p>
+    </Base>
+  )
+}
+
+{
+  !notFound && equipo && (
+    <Base title={`${equipo.nombre} · Campeonato 2026`}>
+      <nav class="mb-3 text-sm text-slate-500">
+        <a href="/" class="hover:underline">Posiciones</a>
+        <span class="mx-1">›</span>
+        <span>{equipo.nombre}</span>
+      </nav>
+      <h1 class="mb-1 text-2xl font-semibold">{equipo.nombre}</h1>
+      <p class="mb-4 text-sm text-slate-500">{equipo.jugadores.length} jugadores</p>
+      <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-100 text-left text-slate-700">
+            <tr>
+              <th class="px-3 py-2 w-16">#</th>
+              <th class="px-3 py-2">Nombre</th>
+              <th class="px-3 py-2">Posición</th>
+              <th class="px-3 py-2">Nacimiento</th>
+            </tr>
+          </thead>
+          <tbody>
+            {equipo.jugadores.map((j) => (
+              <tr class="border-t border-slate-100 even:bg-slate-50">
+                <td class="px-3 py-2 font-mono">{j.dorsal}</td>
+                <td class="px-3 py-2">{j.nombre}</td>
+                <td class="px-3 py-2 font-mono">{j.posicion}</td>
+                <td class="px-3 py-2">{fechaCorta(j.fecha_nacimiento)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Base>
+  )
+}

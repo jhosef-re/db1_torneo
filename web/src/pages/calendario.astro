@@ -1,0 +1,106 @@
+---
+import Base from '../layouts/Base.astro';
+import { calendario } from '../lib/queries/calendario';
+import { etiquetaEstado, fechaCorta, etiquetaMarcador } from '../lib/formato';
+import type { EstadoPartido } from '../lib/queries/types';
+
+// Filtros (DA5: ?jornada fuera de 1..22 se IGNORA y se muestra todo).
+const url = new URL(Astro.request.url);
+const jRaw = url.searchParams.get('jornada');
+const jNum = jRaw === null ? null : Number(jRaw);
+const jornada =
+  jNum !== null && Number.isInteger(jNum) && jNum >= 1 && jNum <= 22 ? jNum : undefined;
+
+const eRaw = url.searchParams.get('estado');
+const estado =
+  eRaw === 'jugado' || eRaw === 'pendiente' ? (eRaw as EstadoPartido) : undefined;
+
+const datos = await calendario({ ...(jornada !== undefined && { jornada }),
+                                   ...(estado !== undefined && { estado }) });
+
+// Agrupa por jornada.
+type PorJornada = Record<number, typeof datos>;
+const porJornada: PorJornada = {};
+for (const p of datos) {
+  (porJornada[p.jornada] ??= []).push(p);
+}
+const jornadas = Object.keys(porJornada)
+  .map((n) => Number(n))
+  .sort((a, b) => a - b);
+---
+
+<Base title="Calendario · Campeonato 2026">
+  <h1 class="mb-3 text-2xl font-semibold">Calendario</h1>
+
+  <form method="get" class="mb-4 flex flex-wrap items-end gap-3 text-sm">
+    <label class="flex flex-col">
+      <span class="text-slate-500">Jornada (1–22)</span>
+      <input
+        type="number" name="jornada" min="1" max="22" value={jornada ?? ''}
+        class="rounded-md border border-slate-300 px-2 py-1"
+      />
+    </label>
+    <label class="flex flex-col">
+      <span class="text-slate-500">Estado</span>
+      <select name="estado" class="rounded-md border border-slate-300 px-2 py-1">
+        <option value="" selected={!estado}>Todos</option>
+        <option value="jugado" selected={estado === 'jugado'}>Jugados</option>
+        <option value="pendiente" selected={estado === 'pendiente'}>Pendientes</option>
+      </select>
+    </label>
+    <button class="rounded-md bg-slate-900 px-3 py-1.5 text-white">Filtrar</button>
+    <a href="/calendario" class="rounded-md border border-slate-300 px-3 py-1.5">Limpiar</a>
+    <span class="ml-auto text-slate-500">{datos.length} partidos</span>
+  </form>
+
+  {jornadas.length === 0 && (
+    <p class="text-slate-600">No hay partidos para los filtros indicados.</p>
+  )}
+
+  {jornadas.map((n) => (
+    <section class="mb-6">
+      <h2 class="mb-2 text-lg font-semibold">Jornada {n}</h2>
+      <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-100 text-left text-slate-700">
+            <tr>
+              <th class="px-3 py-2">Fecha</th>
+              <th class="px-3 py-2">Local</th>
+              <th class="px-3 py-2">Visitante</th>
+              <th class="px-3 py-2">Estadio</th>
+              <th class="px-3 py-2">Estado</th>
+              <th class="px-3 py-2">Resultado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {porJornada[n]!.map((p) => (
+              <tr class="border-t border-slate-100">
+                <td class="px-3 py-2">{fechaCorta(p.fecha)} · {p.hora}</td>
+                <td class="px-3 py-2"><a href={`/equipos/${p.local.equipo_id}`} class="text-sky-700 hover:underline">{p.local.nombre}</a></td>
+                <td class="px-3 py-2"><a href={`/equipos/${p.visitante.equipo_id}`} class="text-sky-700 hover:underline">{p.visitante.nombre}</a></td>
+                <td class="px-3 py-2 text-slate-600">{p.estadio.nombre}</td>
+                <td class="px-3 py-2">
+                  <span
+                    class:list={[
+                      'rounded-full px-2 py-0.5 text-xs',
+                      p.estado === 'jugado'
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : 'bg-amber-100 text-amber-800',
+                    ]}
+                  >{etiquetaEstado(p.resultado)}</span>
+                </td>
+                <td class="px-3 py-2">
+                  {p.resultado === null
+                    ? <span class="text-slate-400">—</span>
+                    : <a href={`/partidos/${p.partido_id}`} class="font-mono text-slate-900 hover:underline">
+                        {etiquetaMarcador(p.resultado)}
+                      </a>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  ))}
+</Base>
