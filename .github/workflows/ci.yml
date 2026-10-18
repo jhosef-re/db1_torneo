@@ -1,0 +1,85 @@
+# .github/workflows/ci.yml
+#
+# CI mínimo para la app web del Campeonato.
+# Cobertura: typecheck (`astro check`) + build (`astro build`) + verificación
+# de que `package.json` parsea. NO ejecuta los scripts A4/A5/A6 porque
+# requieren una BD MySQL real (no se incluye en este CI mínimo).
+#
+# Para correr la paridad completa (87 checks), sigue la sección
+# "Verificación automatizada" del README en local.
+
+name: CI · Campeonato web
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:    # permite correr manualmente desde GitHub
+
+# Cancela ejecuciones en cola si llega una nueva al mismo branch.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: typecheck + build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.22'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: web
+        run: npm ci --no-audit --no-fund
+
+      - name: Typecheck (astro check)
+        working-directory: web
+        run: npm run check
+
+      - name: Build (astro build)
+        working-directory: web
+        run: npm run build
+
+      - name: Verify package.json scripts parsean (consistencia de SDD)
+        working-directory: web
+        run: |
+          node -e "const p=require('./package.json');['check','build','db:pull','verificar','verificar:api','badges'].forEach(s=>{if(!p.scripts[s])throw new Error('Falta script: '+s)});console.log('✔ package.json OK')"
+
+      - name: README menciona los gates A0–A8
+        working-directory: web
+        run: |
+          for g in A0 A1 A2 A3 A4 A5 A6 A7 A8; do
+            if ! grep -q "${g}" README.md; then
+              echo "::error::README.md no menciona el gate $g"
+              exit 1
+            fi
+          done
+          echo "✔ README.md menciona A0–A8"
+
+      - name: Confirmar que NO se versionan secretos
+        run: |
+          if git ls-files | grep -E "^\.env$|^web/\.env$"; then
+            echo "::error::Se está versionando un .env real. ¿Falta en .gitignore?"
+            git ls-files | grep -E "^\.env$|^web/\.env$"
+            exit 1
+          fi
+          # Heurística simple: cualquier línea con un password = secret = token con
+          # valor no debería estar en el árbol. Si queremos ser más finos, añadir
+          # un patrón concreto al proyecto.
+          if git grep -nE '\\\$[0-9a-zA-Z_]{2,}' -- ':!sql/05_usuario_app.sql' ':!*.lock' ':!.docs/badges/' ':!*.svg' | head -5; then
+            echo "::warning::Sospecha de credencial. Revisar git grep arriba. (Si es un false positive, ignora.)"
+          fi
+          echo "✔ Sin .env reales. Ejecuta 'git secret-scan' en local si quieres auditar más."

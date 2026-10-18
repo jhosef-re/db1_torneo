@@ -210,11 +210,27 @@ npm run badges
 | `a6` | `40 / 40` | `npx tsx ./scripts/a6_vistas.ts` (necesita server). |
 | `a1` | `OK` / `FAIL` | `npx tsx ./scripts/a1_aislamiento.ts`. |
 
-Los SVG están **versionados** (el `.gitignore` los excluye de la
-auto-regeneración en local, pero sí los commitea). Cada cambio de fase
-debe regenerar los badges con `npm run badges` y commitearlos junto al
-código. Si prefieres ignorar los cambios automáticos en tu copia local,
-usa `git update-index --assume-unchanged web/.docs/badges/`.
+Los SVG están **versionados** (cada cambio de fase debe regenerar los
+badges con `npm run badges` y commitearlos junto al código).
+
+## Integración continua
+
+Existe un workflow de CI en `.github/workflows/ci.yml` que se dispara
+en cada push y pull request a `main`:
+
+- **Typecheck** — `astro check` (TypeScript estricto).
+- **Build** — `astro build` (SSR + Node standalone).
+- **Consistencia** — verifica que los scripts esperados existen en
+  `package.json` (`check`, `build`, `db:pull`, `verificar`,
+  `verificar:api`, `badges`).
+- **Documentación** — comprueba que el README menciona cada gate A0–A8.
+- **Seguridad** — confirma que no se versionan `.env` ni credenciales.
+
+> Nota: el CI es **mínimo** y no requiere ningún servicio externo.
+> Los 87 checks reales (A4–A6) se ejecutan **en local** porque requieren
+> la base `campeonato_futbol` con `app_campeonato` solo-SELECT.
+> Para ejecutarlos en CI, añade el servicio `mysql:8.0` al job y carga
+> `01_estructura.sql` + `02_carga.sql` antes de correr los scripts.
 
 ## API REST — referencia
 
@@ -463,7 +479,9 @@ curl -sS http://localhost:4321/api/equipos/1 | jq '.datos | {equipo_id,nombre, t
 - **Sin CORS** por defecto (DA6). Si un cliente externo lo necesita, se
   activa explícitamente solo para `GET` y con un origen definido.
 - **Sin pruebas E2E** con framework (Playwright, etc.). Se valida con
-  scripts `tsx` propios y `bash` (87 checks acumulados).
+  scripts `tsx` propios y `bash` (87 checks acumulados). El CI mínimo
+  de GitHub Actions corre `astro check` + `astro build`; los 87 checks
+  de paridad requieren la BD y se ejecutan en local.
 
 ## Troubleshooting
 
